@@ -17,7 +17,6 @@ def getIdent(server, myport, remoteport):
             s = socket.socket(af, socktype, proto)
         except socket.error, msg:
             s = None
-            print("adg")
             continue
         try:
             s.connect(sa)
@@ -27,7 +26,7 @@ def getIdent(server, myport, remoteport):
             continue
         break
     if s is None:
-        return False
+        return
     s.send("%s, %s\n" % (myport, remoteport))
     data = s.recv(1024)
     s.setblocking(0)
@@ -36,4 +35,4 @@ def getIdent(server, myport, remoteport):
     if data.split(":")[2].strip() == "UNIX":
         return data.split(":")[3].strip()
     else:
-        return ""
+        return

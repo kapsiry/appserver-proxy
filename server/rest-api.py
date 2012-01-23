@@ -2,25 +2,16 @@
 # -*- encoding: utf-8 -*-
 #
 # rest-api for mantrid configuration
-# work as a wrapper between mantrid rest-api and kapsi client
+# works as a wrapper between mantrid rest-api and kapsi client.
 #
 
 import ident
 from urlparse import parse_qs
 
-# kuka käyttäjä on?
-def auth(data):
-    #yield "%s " % data
-    i = ident.getIdent(data['REMOTE_ADDR'],data['SERVER_PORT'],data['REMOTE_PORT'])
-    if str(i) != "":
-        return str(i)
-    else:
-        return False
-
 def add_testdomain(name=""):
     if name == "":
         "".strip()
-        #keksinimitähän
+        #createnamehere
     raise NotImplementedError
 
 def app(environ, start_response):
@@ -33,11 +24,12 @@ def app(environ, start_response):
     try:
         post = dict([p.split("=") for p in postdata.split("&")])
     except ValueError:
-        yield "parametrivirhe".encode("utf-8")
+        yield "Parsing error!".encode("utf-8")
         return
     get = parse_qs(environ.get("QUERY_STRING").encode("iso-8859-1").decode("utf-8", "replace"))
-    user = auth(environ)
-    if user != False:
+    # ask ident  who you are
+    user = ident.getIdent(environ['REMOTE_ADDR'],environ['SERVER_PORT'],environ['REMOTE_PORT'])
+    if user is not None:
         yield "user = %s" % user
         if environ["PATH_INFO"] == "/add/":
             if "name" in post:
@@ -45,4 +37,4 @@ def app(environ, start_response):
             else:
                 add_testdomain()
     else:
-        yield "Tunnistautuminen epäonnistui!!"
+        yield "Username not found"
